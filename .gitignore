@@ -12,3 +12,5 @@
 /SafeSpace/SafeSpace.Infrastructure/obj
 /SafeSpace/SafeSpace.Application/bin/Debug/net8.0
 /SafeSpace/SafeSpace.Domain/bin/Debug/net8.0
+/SafeSpace/LocalDBInitializer/bin/Debug/net8.0
+/SafeSpace/LocalDBInitializer/obj
