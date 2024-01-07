@@ -6,3 +6,9 @@
 /SafeSpace/.vs/SafeSpace
 /SafeSpace/SafeSpace.Web/bin/Debug/net8.0
 /SafeSpace/SafeSpace.Web/obj
+/SafeSpace/.vs/ProjectEvaluation
+/SafeSpace/SafeSpace.Application/obj
+/SafeSpace/SafeSpace.Domain/obj
+/SafeSpace/SafeSpace.Infrastructure/obj
+/SafeSpace/SafeSpace.Application/bin/Debug/net8.0
+/SafeSpace/SafeSpace.Domain/bin/Debug/net8.0
