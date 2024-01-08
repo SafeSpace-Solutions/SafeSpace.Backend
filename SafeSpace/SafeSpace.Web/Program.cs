@@ -1,4 +1,19 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using SafeSpace.Domain.entities;
+using Microsoft.IdentityModel.Tokens;
+using SafeSpace.Infrastructure.Data;
+using System;
+using System.Text;
+using SafeSpace.Application.Services;
+
 namespace SafeSpace.Web
 {
     public class Program
@@ -14,6 +29,44 @@ namespace SafeSpace.Web
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddDbContext<Context>(options =>
+            {
+                options.UseMySql(builder.Configuration.GetConnectionString("SafeSpaceDatabase"),
+                new MySqlServerVersion(new Version(8, 0, 34)));
+            });
+
+            builder.Services.AddScoped<JwtService>();
+
+            builder.Services.AddIdentityCore<User>(options =>
+            {
+                options.Password.RequiredLength = 6;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+
+                options.SignIn.RequireConfirmedEmail = true;
+            })
+                .AddRoles<IdentityRole>()
+                .AddRoleManager<RoleManager<IdentityRole>>()
+                .AddEntityFrameworkStores<Context>()
+                .AddSignInManager<SignInManager<User>>()
+                .AddUserManager<UserManager<User>>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+                        ValidateIssuer = true,
+                        ValidateAudience = false,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"]
+                    };
+                });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -24,12 +77,9 @@ namespace SafeSpace.Web
             }
 
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }
