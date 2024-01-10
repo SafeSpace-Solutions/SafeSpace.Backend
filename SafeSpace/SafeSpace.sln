@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{BDF3EB38
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalDBInitializer", "LocalDBInitializer\LocalDBInitializer.csproj", "{CCAB5C32-3E4D-4CA1-AE8E-7FB4098EE98D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMigrator", "DataMigrator\DataMigrator.csproj", "{BF90788C-AE66-46A9-9205-5CB1DCD2694F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbUpdater", "DataMigrator\DbUpdater.csproj", "{BF90788C-AE66-46A9-9205-5CB1DCD2694F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

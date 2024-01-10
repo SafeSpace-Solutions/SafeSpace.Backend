@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SafeSpace.Domain.entities;
 using System;
@@ -14,13 +15,15 @@ namespace SafeSpace.Application.Services
     public class JwtService
     {
         private readonly IConfiguration _config;
+        private readonly UserManager<User> _userManager;
         private readonly SymmetricSecurityKey _jwtKey;
-        public JwtService(IConfiguration config)
+        public JwtService(IConfiguration config, UserManager<User> userManager)
         {
             _config = config;
+            _userManager = userManager;
             _jwtKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         }
-        public string CreateJwt(User user)
+        public async Task<string> CreateJwt(User user)
         {
             var userClaims = new List<Claim>
             {
@@ -29,6 +32,8 @@ namespace SafeSpace.Application.Services
                 new Claim(ClaimTypes.GivenName, user.FirstName),
                 new Claim(ClaimTypes.Surname, user.LastName),
             };
+            var roles = await _userManager.GetRolesAsync(user);
+            userClaims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
             var credentials = new SigningCredentials(_jwtKey, SecurityAlgorithms.HmacSha256Signature);
             var tokenDescriptor = new SecurityTokenDescriptor
             {

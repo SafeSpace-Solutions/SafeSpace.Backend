@@ -46,7 +46,7 @@ namespace SafeSpace.Web.Controllers
             {
                 return Unauthorized("Invalid username or password");
             }
-            return CreateApplicationUserDto(user);
+            return await CreateApplicationUserDto(user);
         }
 
         [HttpPost("register")]
@@ -65,7 +65,6 @@ namespace SafeSpace.Web.Controllers
                 Email = model.Email.ToLower(),
                 EmailConfirmed = true,
                 Gender = model.Gender,
-
             };
 
             var result = await _userManager.CreateAsync(userToAdd, model.Password);
@@ -73,6 +72,7 @@ namespace SafeSpace.Web.Controllers
             {
                 return BadRequest(result.Errors);
             }
+            await _userManager.AddToRoleAsync(userToAdd, model.Role);
             return Ok("Account has been registered");
         }
 
@@ -81,7 +81,7 @@ namespace SafeSpace.Web.Controllers
         public async Task<ActionResult<UserDto>> RefreshUserToken()
         {
             var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.Email)?.Value);
-            return CreateApplicationUserDto(user);
+            return await CreateApplicationUserDto(user);
         }
 
         [HttpPost("forgot-password/{email}")]
@@ -107,7 +107,7 @@ namespace SafeSpace.Web.Controllers
         }
 
         #region Private Helper Methods
-        private UserDto CreateApplicationUserDto(User user)
+        private async Task<UserDto> CreateApplicationUserDto(User user)
         {
             return new UserDto
             {
@@ -115,7 +115,7 @@ namespace SafeSpace.Web.Controllers
                 LastName = user.LastName,
                 Age = user.Age,
                 Gender = user.Gender,
-                Jwt = _jwtService.CreateJwt(user),
+                Jwt =  await _jwtService.CreateJwt(user),
             };
         }
 

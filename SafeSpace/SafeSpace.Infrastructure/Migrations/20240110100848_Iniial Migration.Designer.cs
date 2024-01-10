@@ -11,8 +11,8 @@ using SafeSpace.Infrastructure.Data;
 namespace SafeSpace.Infrastructure.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240108131025_IdentityMigration")]
-    partial class IdentityMigration
+    [Migration("20240110100848_Iniial Migration")]
+    partial class IniialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
