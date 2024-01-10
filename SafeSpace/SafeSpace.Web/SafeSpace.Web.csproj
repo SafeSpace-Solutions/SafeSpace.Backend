@@ -5,9 +5,11 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
+    <UserSecretsId>9b1aa777-3da9-484e-9584-59fcce8d096a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mailjet.Api" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.14">
       <PrivateAssets>all</PrivateAssets>

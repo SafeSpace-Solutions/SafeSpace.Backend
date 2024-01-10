@@ -36,6 +36,7 @@ namespace SafeSpace.Web
             });
 
             builder.Services.AddScoped<JwtService>();
+            builder.Services.AddScoped<EmailService>();
 
             builder.Services.AddIdentityCore<User>(options =>
             {
