@@ -14,3 +14,6 @@
 /SafeSpace/SafeSpace.Domain/bin/Debug/net8.0
 /SafeSpace/LocalDBInitializer/bin/Debug/net8.0
 /SafeSpace/LocalDBInitializer/obj
+/SafeSpace/DataMigrator/bin/Debug/net8.0
+/SafeSpace/DataMigrator/obj
+/SafeSpace/SafeSpace.Infrastructure/bin/Debug/net8.0
