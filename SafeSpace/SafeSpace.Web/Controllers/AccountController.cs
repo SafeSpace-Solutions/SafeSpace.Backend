@@ -9,6 +9,7 @@ using SafeSpace.Application.DTOs.Account;
 using SafeSpace.Application.Services;
 using SafeSpace.Domain.entities;
 using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,15 +37,15 @@ namespace SafeSpace.Web.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto model)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
+            var user = await _userManager.FindByNameAsync(model.Email);
             if (user == null)
             {
-                return Unauthorized("Invalid username or password");
+                return Unauthorized("Invalid Email or password");
             }
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded)
             {
-                return Unauthorized("Invalid username or password");
+                return Unauthorized("Invalid Email or password");
             }
             return await CreateApplicationUserDto(user);
         }
@@ -54,7 +55,7 @@ namespace SafeSpace.Web.Controllers
         {
             if (await CheckEmailExistsAsync(model.Email))
             {
-                return BadRequest("Email already registered");
+                return BadRequest("An account with this email already exists");
             }
 
             var userToAdd = new User
@@ -63,8 +64,9 @@ namespace SafeSpace.Web.Controllers
                 LastName = model.LastName,
                 UserName = model.Email.ToLower(),
                 Email = model.Email.ToLower(),
-                EmailConfirmed = true,
                 Gender = model.Gender,
+                //Age = (int)model.Age,
+                EmailConfirmed = true,
             };
 
             var result = await _userManager.CreateAsync(userToAdd, model.Password);
@@ -73,14 +75,14 @@ namespace SafeSpace.Web.Controllers
                 return BadRequest(result.Errors);
             }
             await _userManager.AddToRoleAsync(userToAdd, model.Role);
-            return Ok("Account has been registered");
+            return Ok(new JsonResult(new { title = "Account Created", message = "Your account has been created. You can now Log in" }));
         }
 
         [Authorize]
         [HttpGet("refresh-user-token")]
         public async Task<ActionResult<UserDto>> RefreshUserToken()
         {
-            var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.Email)?.Value);
+            var user = await _userManager.FindByEmailAsync(User.FindFirst(ClaimTypes.Email)?.Value);
             return await CreateApplicationUserDto(user);
         }
 
@@ -89,7 +91,7 @@ namespace SafeSpace.Web.Controllers
         {
             if(string.IsNullOrEmpty(email)) return BadRequest("Invalid Email");
             var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return Unauthorized("This email has not been registered");
+            if (user == null) return Unauthorized("An account with this email does not exist");
 
             try
             {
@@ -109,12 +111,16 @@ namespace SafeSpace.Web.Controllers
         #region Private Helper Methods
         private async Task<UserDto> CreateApplicationUserDto(User user)
         {
+
             return new UserDto
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                Email = user.Email,
                 Age = user.Age,
                 Gender = user.Gender,
+                Role =  (await _userManager.GetRolesAsync(user)).FirstOrDefault(),
+                DateOfJoining = user.DateOfJoining,
                 Jwt =  await _jwtService.CreateJwt(user),
             };
         }

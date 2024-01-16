@@ -39,7 +39,7 @@ namespace DbUpdater
                 .Build();
 
             // Add DbContext
-            services.AddDbContext<Context>(options =>
+            services.AddDbContext<SafeSpaceDbContext>(options =>
             {
                 options.UseMySql(configuration.GetConnectionString("SafeSpaceDatabase"),
                     new MySqlServerVersion(new Version(8, 0, 34)));
@@ -49,7 +49,7 @@ namespace DbUpdater
             services.AddIdentityCore<User>()
                 .AddRoles<IdentityRole>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
-                .AddEntityFrameworkStores<Context>()
+                .AddEntityFrameworkStores<SafeSpaceDbContext>()
                 .AddUserManager<UserManager<User>>();
         }
 
@@ -57,7 +57,7 @@ namespace DbUpdater
         {
             using (var scope = serviceProvider.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<Context>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<SafeSpaceDbContext>();
 
                 Console.WriteLine("Applying migrations...");
                 await dbContext.Database.MigrateAsync();

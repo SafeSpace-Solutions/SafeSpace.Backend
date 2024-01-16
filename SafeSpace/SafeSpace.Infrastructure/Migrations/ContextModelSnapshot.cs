@@ -9,7 +9,7 @@ using SafeSpace.Infrastructure.Data;
 
 namespace SafeSpace.Infrastructure.Migrations
 {
-    [DbContext(typeof(Context))]
+    [DbContext(typeof(SafeSpaceDbContext))]
     partial class ContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

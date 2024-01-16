@@ -8,11 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using SafeSpace.Domain.entities;
-using Microsoft.IdentityModel.Tokens;
 using SafeSpace.Infrastructure.Data;
 using System;
 using System.Text;
 using SafeSpace.Application.Services;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace SafeSpace.Web
 {
@@ -28,15 +29,14 @@ namespace SafeSpace.Web
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<JwtService>();
+            builder.Services.AddScoped<EmailService>();
 
-            builder.Services.AddDbContext<Context>(options =>
+            builder.Services.AddDbContext<SafeSpaceDbContext>(options =>
             {
                 options.UseMySql(builder.Configuration.GetConnectionString("SafeSpaceDatabase"),
                 new MySqlServerVersion(new Version(8, 0, 34)));
             });
-
-            builder.Services.AddScoped<JwtService>();
-            builder.Services.AddScoped<EmailService>();
 
             builder.Services.AddIdentityCore<User>(options =>
             {
@@ -45,12 +45,11 @@ namespace SafeSpace.Web
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
-
                 options.SignIn.RequireConfirmedEmail = true;
             })
                 .AddRoles<IdentityRole>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
-                .AddEntityFrameworkStores<Context>()
+                .AddEntityFrameworkStores<SafeSpaceDbContext>()
                 .AddSignInManager<SignInManager<User>>()
                 .AddUserManager<UserManager<User>>()
                 .AddDefaultTokenProviders();
@@ -68,7 +67,28 @@ namespace SafeSpace.Web
                     };
                 });
 
+            builder.Services.AddCors();
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    var errors = actionContext.ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .SelectMany(x => x.Value.Errors)
+                    .Select(x => x.ErrorMessage).ToArray();
+                    var toReturn = new
+                    {
+                        Errors = errors
+                    };
+                    return new BadRequestObjectResult(toReturn);
+                };
+            });
+
             var app = builder.Build();
+            app.UseCors(opt =>
+            {
+                opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:4200");
+            });
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

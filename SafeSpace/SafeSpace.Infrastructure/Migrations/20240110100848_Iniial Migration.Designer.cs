@@ -10,7 +10,7 @@ using SafeSpace.Infrastructure.Data;
 
 namespace SafeSpace.Infrastructure.Migrations
 {
-    [DbContext(typeof(Context))]
+    [DbContext(typeof(SafeSpaceDbContext))]
     [Migration("20240110100848_Iniial Migration")]
     partial class IniialMigration
     {

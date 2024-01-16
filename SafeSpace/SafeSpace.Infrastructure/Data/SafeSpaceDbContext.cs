@@ -5,9 +5,9 @@ using SafeSpace.Infrastructure.Helpers;
 
 namespace SafeSpace.Infrastructure.Data
 {
-    public class Context : IdentityDbContext<User>
+    public class SafeSpaceDbContext : IdentityDbContext<User>
     {
-        public Context(DbContextOptions<Context> options) : base(options)
+        public SafeSpaceDbContext(DbContextOptions<SafeSpaceDbContext> options) : base(options)
         {
 
         }
