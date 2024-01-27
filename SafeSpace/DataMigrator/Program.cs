@@ -28,7 +28,10 @@ namespace DbUpdater
             // Seed the roles
             SeedRoles(serviceProvider);
 
-            Console.WriteLine("Migration and role seeding completed.");
+            //Seed the Admin
+            SeedAdmin(serviceProvider);
+
+            Console.WriteLine("Migration and Seeding completed.");
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -83,6 +86,31 @@ namespace DbUpdater
 
                 Console.WriteLine("Roles seeded successfully.");
             }
+        }
+        private static void SeedAdmin(IServiceProvider serviceProvider)
+        {
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                Console.WriteLine("Seeding Admin...");
+
+                if (!userManager.Users.AnyAsync(u => u.Email == "safespacesolutions.beta@gmail.com").GetAwaiter().GetResult())
+                {
+                    var admin = new User()
+                    {
+                        FirstName = "SafeSpace",
+                        LastName = "Admin",
+                        UserName = "safespace",
+                        Email = "safespacesolutions.beta@gmail.com",
+                        Gender = "Other",
+                        EmailConfirmed = true,
+                    };
+                    var password = "Admin@123";
+                    userManager.CreateAsync(admin, password).GetAwaiter().GetResult();
+                    userManager.AddToRoleAsync(admin, "Admin").GetAwaiter().GetResult();
+                    Console.WriteLine("Admin Seeded Succefully");
+                }
+             }
         }
     }
 }
