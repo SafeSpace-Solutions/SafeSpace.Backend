@@ -79,8 +79,8 @@ namespace SafeSpace.Web.Controllers
         }
 
         [Authorize]
-        [HttpGet("refresh-user-token")]
-        public async Task<ActionResult<UserDto>> RefreshUserToken()
+        [HttpGet("refresh-page")]
+        public async Task<ActionResult<UserDto>> RefreshPage()
         {
             var user = await _userManager.FindByEmailAsync(User.FindFirst(ClaimTypes.Email)?.Value);
             return await CreateApplicationUserDto(user);
@@ -105,6 +105,30 @@ namespace SafeSpace.Web.Controllers
             catch (Exception)
             {
                 return BadRequest("Failed to send email. Please contact admin");
+            }
+        }
+
+        [HttpPut("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null) return Unauthorized("This email address has not been registerd yet");
+            try
+            {
+                var decodedTokenBytes = WebEncoders.Base64UrlDecode(model.Token);
+                var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
+
+                var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
+                if (result.Succeeded)
+                {
+                    return Ok(new JsonResult(new { title = "Password reset success", message = "Your password has been reset" }));
+                }
+
+                return BadRequest("Invalid token. Please try again");
+            }
+            catch (Exception)
+            {
+                return BadRequest("Invalid token. Please try again");
             }
         }
 
@@ -148,29 +172,7 @@ namespace SafeSpace.Web.Controllers
             return await _emailService.SendEmailAsync(emailSend);
         }
 
-        [HttpPut("reset-password")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordDto model)
-        {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null) return Unauthorized("This email address has not been registerd yet");
-            try
-            {
-                var decodedTokenBytes = WebEncoders.Base64UrlDecode(model.Token);
-                var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
 
-                var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
-                if (result.Succeeded)
-                {
-                    return Ok(new JsonResult(new { title = "Password reset success", message = "Your password has been reset" }));
-                }
-
-                return BadRequest("Invalid token. Please try again");
-            }
-            catch (Exception)
-            {
-                return BadRequest("Invalid token. Please try again");
-            }
-        }
 
         #endregion
     }

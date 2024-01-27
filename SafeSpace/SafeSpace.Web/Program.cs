@@ -31,7 +31,6 @@ namespace SafeSpace.Web
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<JwtService>();
             builder.Services.AddScoped<EmailService>();
-
             builder.Services.AddDbContext<SafeSpaceDbContext>(options =>
             {
                 options.UseMySql(builder.Configuration.GetConnectionString("SafeSpaceDatabase"),
